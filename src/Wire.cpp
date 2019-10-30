@@ -17,7 +17,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  
   Modified 2012 by Todd Krein (todd@krein.org) to implement repeated starts
-  Modified 2017 by Chuck Todd (ctodd@cableone.net) to correct Unconfigured Slave Mode reboot
 */
 
 extern "C" {
@@ -61,14 +60,14 @@ void TwoWire::begin(void)
   txBufferLength = 0;
 
   twi_init();
-  twi_attachSlaveTxEvent(onRequestService); // default callback must exist
-  twi_attachSlaveRxEvent(onReceiveService); // default callback must exist
 }
 
 void TwoWire::begin(uint8_t address)
 {
-  begin();
   twi_setAddress(address);
+  twi_attachSlaveTxEvent(onRequestService);
+  twi_attachSlaveRxEvent(onReceiveService);
+  begin();
 }
 
 void TwoWire::begin(int address)
@@ -84,6 +83,11 @@ void TwoWire::end(void)
 void TwoWire::setClock(uint32_t clock)
 {
   twi_setFrequency(clock);
+}
+
+void TwoWire::setTimeoutInMillis(uint8_t timeout)
+{
+  twi_setTimeoutInMillis(timeout);
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint32_t iaddress, uint8_t isize, uint8_t sendStop)
